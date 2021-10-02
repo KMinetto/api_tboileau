@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -38,11 +40,25 @@ class Post
     private User $author;
 
     /**
-     * @var User[]
+     * @var User[]|Collection
      * @ORM\ManyToMany(targetEntity="User")
      * @ORM\JoinTable(name="post_likes")
      */
-    private array $likedBy;
+    private Collection $likedBy;
+
+    /**
+     * @param string $content
+     * @param User $author
+     * @return static
+     */
+    public static function createPost(string $content, User $author) :self
+    {
+        $post = new self();
+        $post->content = $content;
+        $post->author = $author;
+
+        return $post;
+    }
 
     /**
      * Post constructor
@@ -50,6 +66,7 @@ class Post
     public function __construct()
     {
         $this->publishedAt = new \DateTimeImmutable();
+        $this->likedBy = new ArrayCollection();
     }
 
     /**
@@ -109,18 +126,32 @@ class Post
     }
 
     /**
-     * @return User[]
+     * @return User[]|Collection
      */
-    public function getLikedBy(): array
+    public function getLikedBy(): Collection
     {
         return $this->likedBy;
     }
 
     /**
-     * @param User[] $likedBy
+     * @param User $user
      */
-    public function setLikedBy(array $likedBy): void
+    public function likedBy(User $user): void
     {
-        $this->likedBy = $likedBy;
+        if ($this->likedBy->contains($user)) {
+            return;
+        }
+        $this->likedBy->add($user);
+    }
+
+    /**
+     * @param User $user
+     */
+    public function dislikedBy(User $user): void
+    {
+        if (!$this->likedBy->contains($user)) {
+            return;
+        }
+        $this->likedBy->removeElement($user);
     }
 }
