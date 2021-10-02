@@ -44,6 +44,22 @@ class Comment
     private Post $post;
 
     /**
+     * @param string $message
+     * @param User $author
+     * @param Post $post
+     * @return static
+     */
+    public static function createComment(string $message, User $author, Post $post) :self
+    {
+        $comment = new self();
+        $comment->message = $message;
+        $comment->author = $author;
+        $comment->post = $post;
+
+        return $comment;
+    }
+
+    /**
      * Comment constructor
      */
    public function __construct()
