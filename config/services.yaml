@@ -22,4 +22,7 @@ services:
             - '../src/Tests/'
 
     # add more service definitions when explicit configuration is needed
+    App\Controller\:
+        resource: '../src/controller'
+        tags: ['controller.service_arguments']
     # please note that last definitions always *replace* previous ones
