@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
 /**
  * Class PostController
@@ -70,13 +71,12 @@ class PostController
 
     /**
      * @Route(name="api_posts_collection_post", methods={"POST"})
-     * @param Request $request
+     * @param Post $post
      * @return JsonResponse
      */
-    public function createPost(Request $request): JsonResponse
+    public function createPost(Post $post): JsonResponse
     {
         /** @var Post $post */
-        $post = $this->serializer->deserialize($request->getContent(), Post::class, 'json');
         $post->setAuthor($this->entityManager->getRepository(User::class)->findOneBy([]));
 
         $this->entityManager->persist($post);
@@ -93,19 +93,10 @@ class PostController
     /**
      * @Route("/{id}", name="api_posts_item_put", methods={"PUT"})
      * @param Post $post
-     * @param Request $request
      * @return JsonResponse
      */
-    public function modifyPost(Post $post, Request $request): JsonResponse
+    public function modifyPost(Post $post): JsonResponse
     {
-        /** @var Post $post */
-        $post = $this->serializer->deserialize(
-            $request->getContent(),
-            Post::class,
-            'json',
-            [AbstractNormalizer::OBJECT_TO_POPULATE => $post]
-        );
-
         $this->entityManager->flush();
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
